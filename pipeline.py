@@ -63,7 +63,7 @@ if not WGET_LUA:
 #
 # Update this each time you make a non-cosmetic change.
 # It will be added to the WARC files and reported to the tracker.
-VERSION = '20180831.01'
+VERSION = '20180903.01'
 USER_AGENT = 'ArchiveTeam'
 TRACKER_ID = 'firefox-addons'
 TRACKER_HOST = 'tracker.archiveteam.org'
@@ -201,7 +201,15 @@ class WgetArgs(object):
 
         if item_type == 'ffaddon':
             wget_args.extend(['--warc-header', 'firefox-addon: {}'.format(item_value)])
-            wget_args.append('https://addons.mozilla.org/en/firefox/addon/{}'.format(item_value))
+            wget_args.append('https://addons.mozilla.org/en/firefox/addon/{}/'.format(item_value))
+            wget_args.append('https://addons.mozilla.org/firefox/addon/{}/?src=homepage-collection-featured'.format(item_value))
+            wget_args.append('https://addons.mozilla.org/firefox/addon/{}/?src=featured'.format(item_value))
+            wget_args.append('https://addons.mozilla.org/firefox/addon/{}/?src=hp-dl-promo'.format(item_value))
+            wget_args.append('https://addons.mozilla.org/firefox/addon/{}/?src=collection'.format(item_value))
+            wget_args.append('https://addons.mozilla.org/firefox/addon/{}/?src=hotness'.format(item_value))
+            wget_args.append('https://addons.mozilla.org/firefox/addon/{}/?src=rating'.format(item_value))
+            wget_args.append('https://addons.mozilla.org/firefox/addon/{}/?src=recommended_fallback'.format(item_value))
+            wget_args.append('https://addons.mozilla.org/firefox/addon/{}/'.format(item_value))
         else:
             raise Exception('Unknown item')
 

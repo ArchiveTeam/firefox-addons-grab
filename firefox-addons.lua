@@ -32,18 +32,22 @@ end
 allowed = function(url, parenturl)
   if string.match(url, "'+")
       or string.match(url, "[<>\\%*%$;%^%[%],%(%)]")
-      or string.match(url, "//$") then
-      --or not string.match(url, "^https?://[^/]*firefox%.com/") then
+      or string.match(url, "//$")
+      or not (
+        string.match(url, "^https?://[^/]*firefox%.com/")
+        or string.match(url, "^https?://[^/]*mozilla%.net/")
+        or string.match(url, "^https?://[^/]*mozilla%.org/")
+      ) then
     return false
   end
 
-  for s in string.gmatch(url, "([a-z0-9A-Z%-]+)") do
+  for s in string.gmatch(url, "([a-z0-9A-Z_%-]+)") do
     if s == item_value then
       return true
     end
   end
 
-  if string.match(url, "/downloads/file/[0-9]+/") then
+  if string.match(url, "/downloads/file/[0-9]+/") or string.match(url, "/user%-media/.") then
     return true
   end
 
@@ -111,6 +115,10 @@ wget.callbacks.get_urls = function(file, url, is_css, iri)
        or string.match(newurl, "^%${")) then
       check(string.match(url, "^(https?://.+/)")..newurl)
     end
+  end
+
+  if string.match(url, "/thumbs/") then
+    check(string.gsub(url, "/thumbs/", "/full/"))
   end
   
   if allowed(url, nil) then
