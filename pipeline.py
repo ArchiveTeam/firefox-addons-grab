@@ -17,11 +17,6 @@ import sys
 import time
 import string
 
-try:
-    import warc
-except:
-    raise Exception("Please install warc with 'pip install warc --upgrade'.")
-
 import seesaw
 from seesaw.externalprocess import WgetDownload
 from seesaw.pipeline import Pipeline
@@ -200,16 +195,17 @@ class WgetArgs(object):
         item['item_value'] = item_value
 
         if item_type == 'ffaddon':
-            wget_args.extend(['--warc-header', 'firefox-addon: {}'.format(item_value)])
-            wget_args.append('https://addons.mozilla.org/en/firefox/addon/{}/'.format(item_value))
-            wget_args.append('https://addons.mozilla.org/firefox/addon/{}/?src=homepage-collection-featured'.format(item_value))
-            wget_args.append('https://addons.mozilla.org/firefox/addon/{}/?src=featured'.format(item_value))
-            wget_args.append('https://addons.mozilla.org/firefox/addon/{}/?src=hp-dl-promo'.format(item_value))
-            wget_args.append('https://addons.mozilla.org/firefox/addon/{}/?src=collection'.format(item_value))
-            wget_args.append('https://addons.mozilla.org/firefox/addon/{}/?src=hotness'.format(item_value))
-            wget_args.append('https://addons.mozilla.org/firefox/addon/{}/?src=rating'.format(item_value))
-            wget_args.append('https://addons.mozilla.org/firefox/addon/{}/?src=recommended_fallback'.format(item_value))
-            wget_args.append('https://addons.mozilla.org/firefox/addon/{}/'.format(item_value))
+            wget_args.extend(['--warc-header', 'firefox-addon-identifier: {}'.format(item_value)])
+            wget_args.append('https://addons.mozilla.org/en-US/firefox/addon/{}/'.format(item_value))
+            #wget_args.append('https://addons.mozilla.org/en/firefox/addon/{}/'.format(item_value))
+            #wget_args.append('https://addons.mozilla.org/firefox/addon/{}/?src=homepage-collection-featured'.format(item_value))
+            #wget_args.append('https://addons.mozilla.org/firefox/addon/{}/?src=featured'.format(item_value))
+            #wget_args.append('https://addons.mozilla.org/firefox/addon/{}/?src=hp-dl-promo'.format(item_value))
+            #wget_args.append('https://addons.mozilla.org/firefox/addon/{}/?src=collection'.format(item_value))
+            #wget_args.append('https://addons.mozilla.org/firefox/addon/{}/?src=hotness'.format(item_value))
+            #wget_args.append('https://addons.mozilla.org/firefox/addon/{}/?src=rating'.format(item_value))
+            #wget_args.append('https://addons.mozilla.org/firefox/addon/{}/?src=recommended_fallback'.format(item_value))
+            #wget_args.append('https://addons.mozilla.org/firefox/addon/{}/'.format(item_value))
         else:
             raise Exception('Unknown item')
 

@@ -14,6 +14,8 @@ local downloaded = {}
 local addedtolist = {}
 local abortgrab = false
 
+local addon_name = nil
+
 for ignore in io.open("ignore-list", "r"):lines() do
   downloaded[ignore] = true
 end
@@ -41,9 +43,11 @@ allowed = function(url, parenturl)
     return false
   end
 
-  for s in string.gmatch(url, "([a-z0-9A-Z_%-]+)") do
-    if s == item_value then
-      return true
+  if addon_name ~= nil then
+    for s in string.gmatch(url, "([a-z0-9A-Z_%-]+)") do
+      if s == addon_name then
+        return true
+      end
     end
   end
 
@@ -119,6 +123,21 @@ wget.callbacks.get_urls = function(file, url, is_css, iri)
 
   if string.match(url, "/thumbs/") then
     check(string.gsub(url, "/thumbs/", "/full/"))
+  end
+
+  if addon_name == nil
+    and string.match(url, '/firefox/addon/[a-z0-9A-Z_%-]+/$') then
+    addon_name = string.match(url, '/firefox/addon/([a-z0-9A-Z_%-]+)/$')
+    print('Found addon name ' .. addon_name .. '.')
+    check('https://addons.mozilla.org/en/firefox/addon/' .. addon_name .. '/')
+    check('https://addons.mozilla.org/firefox/addon/' .. addon_name .. '/?src=homepage-collection-featured')
+    check('https://addons.mozilla.org/firefox/addon/' .. addon_name .. '/?src=featured')
+    check('https://addons.mozilla.org/firefox/addon/' .. addon_name .. '/?src=hp-dl-promo')
+    check('https://addons.mozilla.org/firefox/addon/' .. addon_name .. '/?src=collection')
+    check('https://addons.mozilla.org/firefox/addon/' .. addon_name .. '/?src=hotness')
+    check('https://addons.mozilla.org/firefox/addon/' .. addon_name .. '/?src=rating')
+    check('https://addons.mozilla.org/firefox/addon/' .. addon_name .. '/?src=recommended_fallback')
+    check('https://addons.mozilla.org/firefox/addon/' .. addon_name .. '/')
   end
   
   if allowed(url, nil) then
