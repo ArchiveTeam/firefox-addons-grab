@@ -58,7 +58,7 @@ if not WGET_LUA:
 #
 # Update this each time you make a non-cosmetic change.
 # It will be added to the WARC files and reported to the tracker.
-VERSION = '20180930.01'
+VERSION = '20180930.02'
 USER_AGENT = 'ArchiveTeam'
 TRACKER_ID = 'firefox-addons'
 TRACKER_HOST = 'tracker.archiveteam.org'
@@ -197,6 +197,8 @@ class WgetArgs(object):
         if item_type == 'ffaddon':
             wget_args.extend(['--warc-header', 'firefox-addon-identifier: {}'.format(item_value)])
             wget_args.append('https://addons.mozilla.org/en-US/firefox/addon/{}/'.format(item_value))
+            wget_args.append('https://services.addons.mozilla.org/api/v3/addons/addon/{}/'.format(item_value))
+            wget_args.append('https://services.addons.mozilla.org/api/v4/addons/addon/{}/'.format(item_value))
             #wget_args.append('https://addons.mozilla.org/en/firefox/addon/{}/'.format(item_value))
             #wget_args.append('https://addons.mozilla.org/firefox/addon/{}/?src=homepage-collection-featured'.format(item_value))
             #wget_args.append('https://addons.mozilla.org/firefox/addon/{}/?src=featured'.format(item_value))

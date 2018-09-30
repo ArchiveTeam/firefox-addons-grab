@@ -12,12 +12,18 @@ local url_count = 0
 local tries = 0
 local downloaded = {}
 local addedtolist = {}
+local downloaded_xpi = {}
 local abortgrab = false
 
 local addon_name = nil
+local srclist = {}
 
 for ignore in io.open("ignore-list", "r"):lines() do
   downloaded[ignore] = true
+end
+
+for src in io.open("srclist", "r"):lines() do
+  srclist[src] = true
 end
 
 read_file = function(file)
@@ -51,7 +57,10 @@ allowed = function(url, parenturl)
     end
   end
 
-  if string.match(url, "/downloads/file/[0-9]+/") or string.match(url, "/user%-media/.") then
+  if string.match(url, "/downloads/file/[0-9]+/")
+    or string.match(url, "/firefox/downloads/")
+    or string.match(url, "/user%-media/.")
+    or string.match(url, "^https?://services%.addons%.mozilla%.org/api/") then
     return true
   end
 
@@ -81,6 +90,11 @@ wget.callbacks.get_urls = function(file, url, is_css, iri)
     local origurl = url
     local url = string.match(urla, "^([^#]+)")
     local url_ = string.gsub(url, "&amp;", "&")
+    if string.match(url_, "%?src=") and not string.match(urla, "#####$") then
+      for src, _ in pairs(srclist) do
+        check(string.match(url_, "^([^%?]+%?src=)") .. src .. "#####")
+      end
+    end
     if (downloaded[url_] ~= true and addedtolist[url_] ~= true)
        and allowed(url_, origurl) then
       table.insert(urls, { url=url_ })
@@ -131,13 +145,9 @@ wget.callbacks.get_urls = function(file, url, is_css, iri)
     print('Found addon name ' .. addon_name .. '.')
     check('https://addons.mozilla.org/en/firefox/addon/' .. addon_name .. '/')
     check('https://addons.mozilla.org/firefox/addon/' .. addon_name .. '/?src=homepage-collection-featured')
-    check('https://addons.mozilla.org/firefox/addon/' .. addon_name .. '/?src=featured')
-    check('https://addons.mozilla.org/firefox/addon/' .. addon_name .. '/?src=hp-dl-promo')
-    check('https://addons.mozilla.org/firefox/addon/' .. addon_name .. '/?src=collection')
-    check('https://addons.mozilla.org/firefox/addon/' .. addon_name .. '/?src=hotness')
-    check('https://addons.mozilla.org/firefox/addon/' .. addon_name .. '/?src=rating')
-    check('https://addons.mozilla.org/firefox/addon/' .. addon_name .. '/?src=recommended_fallback')
     check('https://addons.mozilla.org/firefox/addon/' .. addon_name .. '/')
+    check('https://services.addons.mozilla.org/api/v3/addons/addon/' .. addon_name .. '/')
+    check('https://services.addons.mozilla.org/api/v4/addons/addon/' .. addon_name .. '/')
   end
   
   if allowed(url, nil) then
@@ -180,6 +190,15 @@ wget.callbacks.httploop_result = function(url, err, http_stat)
   if abortgrab == true then
     io.stdout:write("ABORTING...\n")
     return wget.actions.ABORT
+  end
+
+  if string.match(url["url"], "/firefox/downloads/")
+    and string.match(url["url"], "%?src=") then
+    local base = string.match(url["url"], "^(https?:[^%?]+)%?")
+    if downloaded_xpi[base] then
+      return wget.actions.EXIT
+    end
+    downloaded_xpi[base] = true
   end
   
   if status_code >= 500 or
